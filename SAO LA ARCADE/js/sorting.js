@@ -21,7 +21,13 @@ const popupImg = document.getElementById("popupImg");
 scoreEl.innerText = score;
 
 /* Utilities: shuffle */
-function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){
+    let j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
 
 /* Render items */
 function renderItems(){
@@ -38,7 +44,7 @@ function renderItems(){
   });
 }
 
-/* Drag & drop handlers with HTML5 drag + touch fallback */
+/* Drag & drop handlers */
 function bindDrag(el){
   el.addEventListener('dragstart', e=>{
     el.classList.add("dragging");
@@ -46,7 +52,7 @@ function bindDrag(el){
   });
   el.addEventListener('dragend', ()=> el.classList.remove("dragging"));
 
-  // Touch fallback: emulate drag using pointer events
+  /* Touch fallback */
   let pointerDown=false, startX=0, startY=0;
   el.addEventListener('pointerdown', e=>{
     pointerDown=true; startX=e.clientX; startY=e.clientY;
@@ -61,10 +67,7 @@ function bindDrag(el){
   el.addEventListener('pointerup', e=>{
     if(!pointerDown) return;
     pointerDown=false;
-    el.style.transform='';
-    el.style.position='static';
-    el.style.zIndex='';
-    // detect which bin center is nearest
+    el.style.transform=''; el.style.position='static'; el.style.zIndex='';
     const rect = el.getBoundingClientRect();
     const centerX = rect.left + rect.width/2;
     const centerY = rect.top + rect.height/2;
@@ -79,7 +82,7 @@ function bindDrag(el){
   });
 }
 
-/* Bin dragover/drop for desktop */
+/* Desktop drag & drop */
 bins.forEach(bin=>{
   bin.addEventListener('dragover', e=>{ e.preventDefault(); bin.classList.add("highlight") });
   bin.addEventListener('dragleave', ()=> bin.classList.remove("highlight"));
@@ -98,24 +101,32 @@ function handleDrop(id, bin){
   const item = remaining[itemIndex];
   const binCat = bin.dataset.cat;
   if(item.cat === binCat){
-    // correct
     score += 100;
     localStorage.setItem("saola_arcade_score", String(score));
     scoreEl.innerText = score;
-    // show popup (image or text)
-    popupImg.style.display='none'; // using text for now
-    popupText.innerText = `${item.name} is ${bin.textContent}. +100 điểm! (Bạn có thể thay text này bằng thông tin)`;
+
+    popupImg.style.display='none';
+    popupText.innerText = `${item.name} is ${bin.textContent}. +100 điểm!`;
     popup.style.display='block';
-    // remove from remaining
+
     remaining.splice(itemIndex,1);
     renderItems();
   } else {
-    // wrong -> small feedback
     bin.animate([{background:'#fff'},{background:'#ffdcdc'},{background:'#fff'}],{duration:400});
   }
 }
 
+/* Popup close */
+document.getElementById("popupClose").addEventListener("click", () => {
+  popup.style.display = 'none';
 });
+
+/* Reset session */
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  localStorage.setItem("saola_arcade_score","0");
+  score = 0; scoreEl.innerText = 0;
+});
+
 /* INIT */
 function init(){
   remaining = shuffle(ITEMS.slice());
