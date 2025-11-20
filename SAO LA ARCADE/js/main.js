@@ -1,17 +1,13 @@
 const btn = document.getElementById("playBtn");
 const lockedMsg = document.getElementById("lockedMessage");
 
-// If user has already completed the full arcade
+// Check if arcade has already been played
 if (localStorage.getItem("saola_arcade_played") === "yes") {
-
     btn.innerText = "Play Again";
-
-    btn.addEventListener("click", () => {
-        lockedMsg.innerText = "You can only play the entire arcade once!";
-        lockedMsg.style.color = "red";
-        lockedMsg.style.fontWeight = "bold";
-    });
-
+    btn.disabled = true; // disable button
+    lockedMsg.innerText = "You can only play the entire arcade once!";
+    lockedMsg.style.color = "red";
+    lockedMsg.style.fontWeight = "bold";
 } else {
     // First-time player → start Sorting Game
     btn.addEventListener("click", () => {
